@@ -1,0 +1,6 @@
+Password#reset
+
+Hi <%= @user.name %>
+Someone requested a reset of your password.
+If this was you, click on the link to reset your password. The link will expire automatically in 5 minutes.
+<%=  "http://localhost:3000/reset-forgot-password?token=#{@token}" %>

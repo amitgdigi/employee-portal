@@ -17,6 +17,13 @@ export default () => (
         >
           View Recipes
         </Link>
+        <Link
+          to="/chats"
+          className="btn btn-lg custom-button"
+          role="button"
+        >
+          Go to chat
+        </Link>
       </div>
     </div>
   </div>

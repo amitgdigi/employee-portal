@@ -20,11 +20,8 @@ const SignUp = ({ setUserData }) => {
       setUserData(response.data.user);
       navigate('/');
     } catch (error) {
-      const err = error;
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error)
-      } else {
-        setError(err)
+      if (response && response.data && response.data.error) {
+        setError(response.data.error)
       }
     }
 
@@ -36,7 +33,7 @@ const SignUp = ({ setUserData }) => {
   };
 
   return (
-    <div>confirmPassword
+    <div>
       <h2>Sign Up</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>

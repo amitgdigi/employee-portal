@@ -8,12 +8,17 @@ import SignUpForm from '../components/users/SignUp';
 import ResetPassword from './users/ResetPassword';
 import ForgotPassword from './users/ForgotPassword';
 import ResetForgotPassword from './users/ResetForgotPassword';
+import Chats from './Chats';
 
 const App = () => {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        const userDataString = localStorage.getItem('userData');
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        const userDataString = await localStorage.getItem('userData');
         if (userDataString) {
             const parsedUserData = JSON.parse(userDataString);
             if (parsedUserData) {
@@ -22,7 +27,7 @@ const App = () => {
                 localStorage.removeItem('userData');
             }
         }
-    }, []);
+    };
 
     return (
         <Router>
@@ -37,6 +42,7 @@ const App = () => {
                         <Route path="/reset-password" element={<ResetPassword setUserData={setUserData} />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-forgot-password" element={<ResetForgotPassword />} />
+                        <Route path="/chats" element={<Chats userData={userData} />} />
                         {/* <Route path="/reset-password" element={<ResetPasswordForm />} />
 
                         {/* Catch all undefined routes */}

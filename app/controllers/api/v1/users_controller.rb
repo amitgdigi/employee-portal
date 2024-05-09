@@ -1,61 +1,77 @@
-module Api::V1
-class UsersController < ApplicationController
-    def index
-        @users = User.all
-      end
-    
-      def new
-        @user = User.new
-      end
-    
-      def create
-        @user = User.new(user_params)
+class Api::V1::UsersController < Api::V1::ApplicationController
+  def index
+    @users = User.all
+    render json: { users: @users, notice: "User fetched"}, status: :ok
+  end
+  
+  def new
+    @user = User.new
+  end
 
-        if @user.save!
-          login(@user)
-          render json: { notice: "User created successfully", user: @user }, status: :ok
-        else
-          flash[:alert] = "User not created"
-          render json: { error: @user.errors.full_messages }, status: :unprocessable_entity
-        end
-      end
-    
-      def edit
-        @user = current_user
-      end
-    
-      def update
-        if current_user.update(password_params)
-          render json: { notice: "Password reset successfully", user: current_user }, status: :ok
-        else
-          flash[:error] = current_user.errors.full_messages
-          render :edit,status: :unprocessable_entity
-        end  
-      end
-      def forgot_password
-        @user = User.find_signed!(params[:token], purpose: 'password_reset')
-        if @user.update(password_params)
-          redirect_to new_session_path, notice: 'Your password was reset succesfully. Please sign in.'
-        else
-          render 'edit'
-        end
-      rescue ActiveSupport::MessageVerifier::InvalidSignature
-        redirect_to new_session_path, alert: 'Your token has expired. Please try again'
-      end
-    
-      private
-    
-      def user_params
-        params.require(:user).permit(:name, :email, :phone, :password, :password_confirmation)
-      end 
-       
-      def password_params
-        params.require(:user).permit(
-          :password, 
-          :password_confirmation, 
-          :password_challenge,
-          :token
-        ).with_defaults(password_challenge: '')
-      end
+  def create
+    @user = User.new(user_params)
+
+    if @user.save
+      login(@user)
+      render json: { notice: "User created successfully", user: @user }, status: :ok
+    else
+      render json: { error: @user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def show
+    user = User.find(params[:id])
+    rooms = Room.public_rooms
+    users = User.all_except(current_user)
+    room = Room.new
+    message = Message.new
+    room_name = get_name(user, current_user)
+    single_room = Room.where(name: room_name).first || Room.create_private_room([user, current_user], room_name)
+    messages = single_room.messages.map{|m| m.serialize }
+    render json: { user:, current_user:, rooms:, users:, room:, message:, room_name:, single_room:, messages: }, status: :ok
+  end
+
+  def edit
+    @user = current_user
+  end
+
+  def update
+    if current_user.update(password_params)
+    render json: { notice: "Password reset successfully", user: current_user }, status: :ok
+    else
+    flash[:error] = current_user.errors.full_messages
+    render :edit,status: :unprocessable_entity
+    end  
+  end
+
+  def forgot_password
+    @user = User.find_signed!(params[:token], purpose: 'password_reset')
+    if @user.update(password_params)
+    redirect_to new_session_path, notice: 'Your password was reset succesfully. Please sign in.'
+    else
+    render 'edit'
+    end
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    redirect_to new_session_path, alert: 'Your token has expired. Please try again'
+  end
+
+  private
+
+  def get_name(user1, user2)
+    users = [user1, user2].sort
+    "private_#{users[0].id}_#{users[1].id}"
+  end
+  
+  def user_params
+    params.require(:user).permit(:name, :email, :phone, :password, :password_confirmation)
+  end 
+
+  def password_params
+    params.require(:user).permit(
+    :password, 
+    :password_confirmation, 
+    :password_challenge,
+    :token
+    ).with_defaults(password_challenge: '')
   end
 end

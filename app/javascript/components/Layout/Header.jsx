@@ -8,7 +8,6 @@ const Header = ({ userData, setUserData }) => {
     const [activeLink, setActiveLink] = useState('');
 
     const handleLogout = async () => {
-        console.log("========");
         try {
             const response = await ApiService.delete(API_LOGOUT);
             console.log("Logout API response:", response)
@@ -27,40 +26,34 @@ const Header = ({ userData, setUserData }) => {
         <div className="header-2">
             <nav className="navbar navbar-expand-md navbar-dark bg-dark py-2 md:py-4">
                 <div className="container">
-                    <Link to="/" className="navbar-brand font-weight-bold text-xl text-indigo-600">ChatApp</Link>
+                    <Link to="/" className="navbar-brand font-weight-bold text-xl text-indigo-600">Home</Link>
+                    <Link to="/chats" className="navbar-brand font-weight-bold text-xl text-indigo-600">ChatApp</Link>
                     <button className="navbar-toggler border-0 p-2" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse flex-column flex-md-row ml-md-auto mt-3 mt-md-0" id="navbar-collapse">
                         {userData ? (
                             <>
-                                <Link
-                                    to="/"
-                                    className={` ${activeLink === '/' ? ' active' : ''}`}
-                                    onClick={() => handleLinkClick('/')}
-                                >
-                                    Home
-                                </Link>
-                                <div className="nav-item text-indigo-600 text-center">
+                                <div className="mx-2 text-decoration-none nav-item text-indigo-600 text-center">
                                     Welcome, <span className="font-weight-bold">{userData.email}</span>
                                 </div>
                                 <Link
                                     to="/reset-password"
                                     onClick={() => handleLinkClick('/reset-password')}
-                                    className="">Reset Password
+                                    className="mx-2 text-decoration-none ">Reset Password
                                 </Link>
 
                                 <Link
                                     to="/"
                                     onClick={handleLogout}
-                                    className="">Logout
+                                    className="mx-2 text-decoration-none ">Logout
                                 </Link>
                             </>
                         ) : (
                             <>
                                 <Link
                                     to="/log-in"
-                                    className={` font-weight-bold text-indigo-600 ${activeLink === '/log-in' ? ' active' : ''}`}
+                                    className={` mx-2 text-decoration-none font-weight-bold text-indigo-600 ${activeLink === '/log-in' ? ' active' : ''}`}
                                     onClick={() => handleLinkClick('/log-in')}
                                 >
                                     Login
@@ -68,12 +61,12 @@ const Header = ({ userData, setUserData }) => {
                                 <Link
                                     to="/forgot-password"
                                     onClick={() => handleLinkClick('/forgot-password')}
-                                    className="">Forgot Password
+                                    className="mx-2 text-decoration-none">Forgot Password
                                 </Link>
 
                                 <Link
                                     to="/sign-up"
-                                    className={` font-weight-bold text-indigo-600 ${activeLink === '/sign-up' ? ' active' : ''} ml-md-1`}
+                                    className={` mx-2 text-decoration-none font-weight-bold text-indigo-600 ${activeLink === '/sign-up' ? ' active' : ''} ml-md-1`}
                                     onClick={() => handleLinkClick('/sign-up')}
                                 >
                                     Signup

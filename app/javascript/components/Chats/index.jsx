@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import usersApi from '../common/apis/usersApi'
 import roomsApi from '../common/apis/roomsApi';
 import messagesApi from '../common/apis/messagesApi';
+import ActionCable from 'actioncable';
 
 const Chats = ({ userData }) => {
 
@@ -14,6 +15,20 @@ const Chats = ({ userData }) => {
   const [isPrivate, setIsPrivate] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [roomId, setRoomId] = useState(null)
+
+  useEffect(() => {
+    const cable = ActionCable.createConsumer('/cable');
+    const chatChannel = cable.subscriptions.create('MessagesChannel', {
+      received: (data) => {
+        const user = usersList.find((u) => data.user_id === u.id) || currentUser
+        const newMessage = { id: data.id, user_id: user.id, username: user.name, content: data.content, };
+        setMessagesList(list => [...list, newMessage]);
+      }
+    });
+    return () => {
+      chatChannel.unsubscribe();
+    };
+  }, [messagesList]);
 
   useEffect(() => {
     fetchUsers();

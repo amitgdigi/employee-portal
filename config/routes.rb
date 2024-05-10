@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       delete '/destroy/:id', to: 'exercises#destroy'
     end
   end
+  mount ActionCable.server => '/cable'
   root 'homepage#index'
   get '/*path' => 'homepage#index'
 

@@ -21,7 +21,7 @@ class User < ApplicationRecord
 
   def serialize
     { id: id,
-      name: id,
+      name: ,
       username: 
     }
   end

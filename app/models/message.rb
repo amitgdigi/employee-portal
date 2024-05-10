@@ -12,10 +12,11 @@ class Message < ApplicationRecord
 
   def serialize
     {
-      user_id: user_id,
+      id: id,
+      user_id:,
       username: user.email.split("@").first,
-      room_id: room_id,
-      content: content
+      room_id:,
+      content: 
     }
   end
 end

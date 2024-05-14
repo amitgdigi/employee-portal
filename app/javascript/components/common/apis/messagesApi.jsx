@@ -1,8 +1,8 @@
 import axios from "../apiService";
 
-const path = "/rooms";
+const path = "/messages";
 
-const create = async (roomId, payload) => axios.post(`${path}/${roomId}/messages`, payload);
+const create = async (payload) => axios.post(`${path}`, payload);
 
 const messagesApi = { create };
 

@@ -12,9 +12,8 @@ Rails.application.routes.draw do
       post '/password_resets', to: 'password_resets#create'
       get '/password_resets/edit', to: 'password_resets#edit'
       patch '/password_resets', to: 'password_resets#update'
-      resources :rooms do
-        resources :messages
-      end
+      resources :rooms 
+      resources :messages, only: [:index, :create ]
       resources :users
 
       get 'exercises/index'

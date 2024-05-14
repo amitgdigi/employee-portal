@@ -1,9 +1,7 @@
 class Room < ApplicationRecord
-  validates_uniqueness_of :name
-  
   validates :name, presence: :true, uniqueness: true
   normalizes :name, with: -> name { name.titleize }
-  has_many :messages
+  has_many :messages, :dependent => :destroy
   
   scope :public_rooms, -> { where(is_private: false) }
   
@@ -15,4 +13,12 @@ class Room < ApplicationRecord
     single_room
   end
 
+  def serialize
+    {
+      id:,
+      name:,
+      is_private:,
+      message: messages.last&.content || nil
+    }
+  end
 end

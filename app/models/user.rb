@@ -8,7 +8,7 @@ class User < ApplicationRecord
   # normalizes :phone, with: -> phone { phone.delete("^0-9").delete_prefix("0") }
   scope :all_except, ->(user) { where.not(id: user) }
 
-  has_many :messages
+  has_many :messages, :dependent => :destroy
   has_many :participants
 
   generates_token_for :password_reset, expires_in: 15.minutes do
@@ -20,9 +20,10 @@ class User < ApplicationRecord
   end
 
   def serialize
-    { id: id,
-      name: ,
-      username: 
+    { id:,
+      name:,
+      username:,
+      message: messages.last&.content || nil
     }
-  end
+  end 
 end

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import usersApi from '../common/apis/usersApi'
 import roomsApi from '../common/apis/roomsApi';
 import messagesApi from '../common/apis/messagesApi';
 import ActionCable from 'actioncable';
@@ -11,7 +10,7 @@ const Chats = ({ userData }) => {
   const [usersList, setUsersList] = useState([])
   const [roomsList, setRoomsList] = useState([])
   const [messagesList, setMessagesList] = useState([])
-  const [selectedId, setSelectedId] = useState({})
+  const [selectedRoom, setSelectedRoom] = useState("")
   const [isPrivate, setIsPrivate] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [roomId, setRoomId] = useState(null)
@@ -30,7 +29,7 @@ const Chats = ({ userData }) => {
     return () => {
       chatChannel.unsubscribe();
     };
-  }, [messagesList]);
+  }, [roomId]);
 
   useEffect(() => {
     fetchRooms();
@@ -49,9 +48,8 @@ const Chats = ({ userData }) => {
   }
 
   const fetchMessages = async () => {
-    const api = selectedId.name === "room" ? roomsApi : usersApi
     try {
-      const response = await api.getMessage(queryParams());
+      const response = await messagesApi.index(queryParams());
       setMessagesList(response.data.messages)
       setRoomId(response.data.single_room.id)
 
@@ -74,7 +72,7 @@ const Chats = ({ userData }) => {
   const handleSendMessage = async (event) => {
     event.preventDefault();
     try {
-      await messagesApi.create1({ message: { content: messageField }, is_private: isPrivate, room_id: roomId });
+      await messagesApi.create({ message: { content: messageField }, is_private: isPrivate, room_id: roomId });
       setParams({ ...params, item: 15 })
       fetchMessages();
     } catch (error) {
@@ -83,16 +81,16 @@ const Chats = ({ userData }) => {
     setMessageField("");
   };
 
-  const handleSelected = (id, name, user) => {
-    setSelectedId({ id, name, user })
-    setParams({ ...params, id: id, msg_of: name, item: 15 });
+  const handleSelected = (id, msgFor, roomName) => {
+    setSelectedRoom(roomName)
+    setParams({ ...params, id: id, msg_of: msgFor, item: 15 });
   }
 
   useEffect(() => {
-    if (selectedId.id) {
+    if (params.id) {
       fetchMessages();
     }
-  }, [selectedId, params])
+  }, [params])
 
   const ListView = () => (
     <div className="">
@@ -114,7 +112,7 @@ const Chats = ({ userData }) => {
             </div>
           )
         )}
-        {currentUser && usersList.map(user =>
+        {userData && usersList.map(user =>
           <div className='btn border w-100 bg-gray-200' key={user.id} onClick={() => handleSelected(user.id, "user", user.username)} >
             <div className="d-flex align-items-center flex-start m-1">
               <div
@@ -134,19 +132,19 @@ const Chats = ({ userData }) => {
 
   const MessageListView = () => (
     <div className="chat-view" >
-      <h3 className="text-center">{selectedId.user}</h3>
+      <h3 className="text-center">{selectedRoom}</h3>
       <div className="list-group hide_scrollbar"
         style={{
           height: 'calc(100vh - 150px)', overflowY: 'auto', border: "1px solid #ccc",
         }} >
-        {selectedId.id && <span className='btn' onClick={() => setParams({ ...params, item: params.item += 5 })}>click to load previous messages</span>}
+        {params.id && <span className='btn' onClick={() => setParams({ ...params, item: params.item += 5 })}>click to load previous messages</span>}
         {messagesList.map(message => (
           <li
             key={message.id}
-            className={`hide_scrollbar ` + message.user_id === userData?.id ? "align-right d-flex justify-content-end" : "align-left d-flex justify-content-start"}
+            className={message.user_id === userData?.id ? "align-right d-flex justify-content-end" : "align-left d-flex justify-content-start"}
           >
             <span className="message-content bg-light p-2 m-2 rounded" >
-              {selectedId.name === "room" && message.user_id !== userData?.id && `${message.username?.charAt(0).toUpperCase() + message.username.slice(1)}: `} {message.content}
+              {params.msg_of === "room" && message.user_id !== userData?.id && `${message.username?.charAt(0).toUpperCase() + message.username.slice(1)}: `} {message.content}
             </span>
           </li>
         ))}
@@ -177,18 +175,18 @@ const Chats = ({ userData }) => {
           </div>
           <div className="message-input px-3 py-2">
             <form onSubmit={handleSendMessage}>
-              {currentUser && <div className="input-group">
+              {userData && <div className="input-group">
                 <input
                   className="form-control"
                   rows="3"
                   type='text'
                   value={messageField}
                   onChange={(e) => setMessageField(e.target.value)}
-                  disabled={!selectedId.id}
+                  disabled={!params.id}
                   placeholder="Type a message..."
                 />
                 <div className="input-group-append">
-                  <button className="m-1 btn btn-primary" disabled={!selectedId.id || messageField.length < 1} type="submit">Send</button>
+                  <button className="m-1 btn btn-primary" disabled={!params.id || messageField.length < 1} type="submit">Send</button>
                 </div>
               </div>}
             </form>

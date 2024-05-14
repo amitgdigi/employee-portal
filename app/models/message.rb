@@ -2,6 +2,7 @@ class Message < ApplicationRecord
   belongs_to :user
   belongs_to :room
   before_create :confirm_participant
+  after_commit :broadcast_message
 
   def confirm_participant
     if self.room.is_private
@@ -12,11 +13,15 @@ class Message < ApplicationRecord
 
   def serialize
     {
-      id: id,
+      id:,
       user_id:,
-      username: user.email.split("@").first,
+      username: user.username,
       room_id:,
       content: 
     }
+  end
+
+  def broadcast_message
+    ActionCable.server.broadcast('message_channel', self)
   end
 end

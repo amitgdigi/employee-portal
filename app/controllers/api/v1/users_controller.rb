@@ -13,7 +13,6 @@ class Api::V1::UsersController < Api::V1::ApplicationController
 
     if @user.save
       login(@user)
-      ActionCable.server.broadcast('user_channel', @user) if @user.save
       render json: { notice: "User created successfully", user: @user }, status: :ok
     else
       render json: { error: @user.errors.full_messages }, status: :unprocessable_entity

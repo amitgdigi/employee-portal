@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   has_secure_password :password
   attr_accessor :current_password
+  after_commit :broadcast_message
   
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
@@ -25,5 +26,9 @@ class User < ApplicationRecord
       username:,
       message: messages.last&.content || nil
     }
-  end 
+  end
+
+  def broadcast_message
+    ActionCable.server.broadcast('user_channel', self)
+  end
 end

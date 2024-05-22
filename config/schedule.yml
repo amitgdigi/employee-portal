@@ -1,0 +1,3 @@
+commit_changes_notify_job:
+  cron: "0 11 * * 1 Asia/Kolkata" # Every Monday at 11am IST
+  class: "Slack::CommitChangesNotifyJob"

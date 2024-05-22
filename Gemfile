@@ -65,3 +65,11 @@ group :development do
   # gem "spring"
 end
 
+
+gem "sidekiq", "~> 7.2"
+# To set schedule job
+gem "sidekiq-cron", "~> 1.12"
+# To access env files variable 
+gem "dotenv-rails", "~> 3.1"
+# To integrate slack
+gem "rest-client", "~> 2.1"
